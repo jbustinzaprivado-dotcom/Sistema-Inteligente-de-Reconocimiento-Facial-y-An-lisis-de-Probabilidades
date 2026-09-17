@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 
 from app.database.connection import get_db
 from app.models.persona_model import Persona
-from app.models.recognition_model import FaceEmbedding
-from app.schemas.recognition_schema import ReconocimientoIn, ReconocimientoOut
+from app.models.recognition_model import FaceEmbedding, RecognitionLog
+from app.schemas.recognition_schema import HistorialItem, ReconocimientoIn, ReconocimientoOut
 from app.services.embedding_service import (
     RostroNoDetectadoError,
     generar_embedding,
@@ -46,11 +46,48 @@ def reconocer_rostro(payload: ReconocimientoIn, db: Session = Depends(get_db)) -
         persona = db.get(Persona, mejor_persona_id)
         nombre = persona.nombre if persona else None
 
+    distancia = round(2 - 2 * mejor_similitud, 4)
+
+    db.add(
+        RecognitionLog(
+            persona_id=mejor_persona_id if coincide else None,
+            similitud=round(mejor_similitud, 4),
+            distancia=distancia,
+            umbral=UMBRAL_ACEPTACION,
+            coincide=coincide,
+        )
+    )
+    db.commit()
+
     return ReconocimientoOut(
         coincide=coincide,
         persona_id=mejor_persona_id if coincide else None,
         nombre=nombre,
         similitud=round(mejor_similitud, 4),
-        distancia=round(2 - 2 * mejor_similitud, 4),
+        distancia=distancia,
         umbral=UMBRAL_ACEPTACION,
     )
+
+
+@router.get("/historial", response_model=list[HistorialItem])
+def obtener_historial(db: Session = Depends(get_db)) -> list[HistorialItem]:
+    filas = db.execute(
+        select(RecognitionLog, Persona.nombre)
+        .outerjoin(Persona, Persona.id == RecognitionLog.persona_id)
+        .order_by(RecognitionLog.created_at.desc())
+        .limit(100)
+    ).all()
+
+    return [
+        HistorialItem(
+            id=log.id,
+            persona_id=log.persona_id,
+            nombre=nombre,
+            similitud=log.similitud,
+            distancia=log.distancia,
+            umbral=log.umbral,
+            coincide=log.coincide,
+            created_at=log.created_at,
+        )
+        for log, nombre in filas
+    ]
