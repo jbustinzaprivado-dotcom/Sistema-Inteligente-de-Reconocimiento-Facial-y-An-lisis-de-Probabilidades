@@ -1,4 +1,4 @@
 from app.models.persona_model import Persona
-from app.models.recognition_model import FaceEmbedding
+from app.models.recognition_model import FaceEmbedding, RecognitionLog
 
-__all__ = ["Persona", "FaceEmbedding"]
+__all__ = ["Persona", "FaceEmbedding", "RecognitionLog"]
