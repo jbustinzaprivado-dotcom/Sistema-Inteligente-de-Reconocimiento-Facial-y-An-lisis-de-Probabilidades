@@ -13,6 +13,8 @@ class FaceEmbedding(Base):
     persona_id: Mapped[int] = mapped_column(ForeignKey("personas.id", ondelete="CASCADE"), nullable=False)
     embedding: Mapped[list[float]] = mapped_column(ARRAY(Float), nullable=False)
     modelo: Mapped[str] = mapped_column(String(100), nullable=False, default="buffalo_l")
+    calidad_imagen: Mapped[float | None] = mapped_column(Float, nullable=True)
+    iluminacion: Mapped[float | None] = mapped_column(Float, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
@@ -28,4 +30,15 @@ class RecognitionLog(Base):
     umbral: Mapped[float] = mapped_column(Float, nullable=False)
     coincide: Mapped[bool] = mapped_column(Boolean, nullable=False)
     probabilidad_calibrada: Mapped[float | None] = mapped_column(Float, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class MLTrainingRecord(Base):
+    __tablename__ = "ml_training_records"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    similitud: Mapped[float] = mapped_column(Float, nullable=False)
+    calidad_imagen: Mapped[float] = mapped_column(Float, nullable=False)
+    iluminacion: Mapped[float] = mapped_column(Float, nullable=False)
+    resultado_real: Mapped[bool] = mapped_column(Boolean, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
