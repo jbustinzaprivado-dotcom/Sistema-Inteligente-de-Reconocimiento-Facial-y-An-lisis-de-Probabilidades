@@ -1,5 +1,11 @@
 import axios from 'axios'
-import type { Persona, PersonaCreate, ReconocimientoResultado, RostroUploadResponse } from '../types/facial'
+import type {
+  HistorialItem,
+  Persona,
+  PersonaCreate,
+  ReconocimientoResultado,
+  RostroUploadResponse,
+} from '../types/facial'
 
 const api = axios.create({
   baseURL: '/api',
@@ -29,4 +35,9 @@ export async function reconocerRostro(imagenBase64: string): Promise<Reconocimie
   return data
 }
 
-export default api
+export async function obtenerHistorial(): Promise<HistorialItem[]> {
+  const { data } = await api.get<HistorialItem[]>('/reconocimiento/historial')
+  return data
+}
+
+export default api 

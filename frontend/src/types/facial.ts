@@ -26,3 +26,14 @@ export interface ReconocimientoResultado {
   distancia: number
   umbral: number
 }
+
+export interface HistorialItem {
+  id: number
+  persona_id: number | null
+  nombre: string | null
+  similitud: number
+  distancia: number
+  umbral: number
+  coincide: boolean
+  created_at: string
+}
