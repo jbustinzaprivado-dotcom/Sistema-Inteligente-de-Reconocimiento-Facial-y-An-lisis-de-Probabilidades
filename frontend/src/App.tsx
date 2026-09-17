@@ -1,6 +1,8 @@
-import { LayoutDashboard, ScanFace, UserSearch } from 'lucide-react'
+import { History, LayoutDashboard, PieChart, ScanFace, UserSearch } from 'lucide-react'
 import { NavLink, Route, Routes } from 'react-router-dom'
 import Dashboard from './pages/Dashboard'
+import Historial from './pages/Historial'
+import Probabilidades from './pages/Probabilidades'
 import Reconocimiento from './pages/Reconocimiento'
 import RegistroFacial from './pages/RegistroFacial'
 
@@ -15,7 +17,7 @@ export default function App() {
       <header className="border-b border-gray-200 bg-white">
         <div className="mx-auto flex max-w-4xl items-center gap-2 px-6 py-3">
           <span className="mr-4 font-semibold text-gray-900">Reconocimiento Facial</span>
-          <nav className="flex gap-1">
+          <nav className="flex flex-wrap gap-1">
             <NavLink to="/" end className={navLinkClass}>
               <LayoutDashboard size={16} />
               Dashboard
@@ -28,6 +30,14 @@ export default function App() {
               <UserSearch size={16} />
               Reconocimiento
             </NavLink>
+            <NavLink to="/probabilidades" className={navLinkClass}>
+              <PieChart size={16} />
+              Probabilidades
+            </NavLink>
+            <NavLink to="/historial" className={navLinkClass}>
+              <History size={16} />
+              Historial
+            </NavLink>
           </nav>
         </div>
       </header>
@@ -37,6 +47,8 @@ export default function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/registro" element={<RegistroFacial />} />
           <Route path="/reconocimiento" element={<Reconocimiento />} />
+          <Route path="/probabilidades" element={<Probabilidades />} />
+          <Route path="/historial" element={<Historial />} />
         </Routes>
       </main>
     </div>
