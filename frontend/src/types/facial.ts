@@ -1,4 +1,3 @@
-// Estos tipos reflejan los schemas Pydantic del backend (PersonaOut, PersonaCreate, RostroUploadOut)
 export interface Persona {
   id: number
   nombre: string
@@ -16,4 +15,14 @@ export interface RostroUploadResponse {
   success: boolean
   imagen_url: string
   persona_id: number
+  embeddings_generados: number
+}
+
+export interface ReconocimientoResultado {
+  coincide: boolean
+  persona_id: number | null
+  nombre: string | null
+  similitud: number
+  distancia: number
+  umbral: number
 }

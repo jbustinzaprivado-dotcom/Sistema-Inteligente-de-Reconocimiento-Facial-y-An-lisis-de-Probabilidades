@@ -1,7 +1,6 @@
 import axios from 'axios'
-import type { Persona, PersonaCreate, RostroUploadResponse } from '../types/facial'
+import type { Persona, PersonaCreate, ReconocimientoResultado, RostroUploadResponse } from '../types/facial'
 
-// baseURL relativa: el proxy de vite.config.ts la redirige al backend en desarrollo
 const api = axios.create({
   baseURL: '/api',
 })
@@ -16,8 +15,15 @@ export async function crearPersona(payload: PersonaCreate): Promise<Persona> {
   return data
 }
 
-export async function subirRostro(personaId: number, imagenBase64: string): Promise<RostroUploadResponse> {
+export async function subirRostro(personaId: number, imagenesBase64: string[]): Promise<RostroUploadResponse> {
   const { data } = await api.post<RostroUploadResponse>(`/personas/${personaId}/rostro`, {
+    imagenes_base64: imagenesBase64,
+  })
+  return data
+}
+
+export async function reconocerRostro(imagenBase64: string): Promise<ReconocimientoResultado> {
+  const { data } = await api.post<ReconocimientoResultado>('/reconocimiento', {
     imagen_base64: imagenBase64,
   })
   return data
