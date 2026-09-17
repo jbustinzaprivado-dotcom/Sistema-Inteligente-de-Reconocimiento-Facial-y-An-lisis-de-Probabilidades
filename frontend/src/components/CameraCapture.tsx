@@ -18,6 +18,7 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
   const [error, setError] = useState<string | null>(null)
 
   function handleCapture() {
+    // getScreenshot() devuelve un data URL base64 (image/jpeg) del frame actual
     const screenshot = webcamRef.current?.getScreenshot()
     if (!screenshot) {
       setError('No se pudo capturar la imagen. Verifica el acceso a la cámara.')
@@ -25,6 +26,7 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
     }
     setError(null)
     setPreview(screenshot)
+    // Se notifica al padre (RegistroFacial) para que quede listo para enviar
     onCapture(screenshot)
   }
 
@@ -35,6 +37,7 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
   return (
     <div className="flex flex-col items-center gap-3">
       <div className="aspect-square w-full max-w-sm overflow-hidden rounded-lg border border-gray-300 bg-black">
+        {/* Mientras no haya preview, se muestra el video en vivo; luego, la foto capturada */}
         {preview ? (
           <img src={preview} alt="Rostro capturado" className="h-full w-full object-cover" />
         ) : (

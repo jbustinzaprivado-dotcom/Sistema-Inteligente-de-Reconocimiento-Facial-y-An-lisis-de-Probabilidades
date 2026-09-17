@@ -12,6 +12,7 @@ export default function RegistroFacial() {
   const [estado, setEstado] = useState<Estado>('formulario')
   const [error, setError] = useState<string | null>(null)
 
+  // El boton solo se habilita con nombre, email y una foto ya capturada
   const puedeEnviar = nombre.trim() !== '' && email.trim() !== '' && imagenBase64 !== null
 
   async function handleSubmit(e: FormEvent) {
@@ -21,6 +22,7 @@ export default function RegistroFacial() {
     setEstado('enviando')
     setError(null)
     try {
+      // Dos pasos: primero se crea la persona, luego se asocia su rostro (necesita el id)
       const persona = await crearPersona({ nombre, email })
       await subirRostro(persona.id, imagenBase64)
       setEstado('exito')

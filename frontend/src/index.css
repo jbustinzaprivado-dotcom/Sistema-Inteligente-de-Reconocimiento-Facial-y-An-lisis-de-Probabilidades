@@ -1,3 +1,4 @@
+/* Tailwind v4 se activa por CSS, sin tailwind.config.js */
 @import "tailwindcss";
 
 :root {

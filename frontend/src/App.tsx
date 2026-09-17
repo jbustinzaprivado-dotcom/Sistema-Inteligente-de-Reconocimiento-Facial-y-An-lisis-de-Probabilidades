@@ -28,6 +28,7 @@ export default function App() {
       </header>
 
       <main>
+        {/* Solo estas dos rutas existen en la Fase 1; el resto se agrega en fases posteriores */}
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/registro" element={<RegistroFacial />} />

@@ -1,6 +1,7 @@
 import axios from 'axios'
 import type { Persona, PersonaCreate, RostroUploadResponse } from '../types/facial'
 
+// baseURL relativa: el proxy de vite.config.ts la redirige al backend en desarrollo
 const api = axios.create({
   baseURL: '/api',
 })

@@ -8,6 +8,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Se carga una sola vez al montar; sin refetch automatico en esta fase
   useEffect(() => {
     listarPersonas()
       .then(setPersonas)
@@ -35,6 +36,7 @@ export default function Dashboard() {
 
       {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
 
+      {/* Aviso intencional: estas secciones no existen todavia, llegan en fases 2 y 3 */}
       <p className="mt-6 text-sm text-gray-500">
         Reconocimiento, probabilidades e historial se habilitarán en las siguientes fases del proyecto.
       </p>

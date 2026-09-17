@@ -1,3 +1,4 @@
+// Estos tipos reflejan los schemas Pydantic del backend (PersonaOut, PersonaCreate, RostroUploadOut)
 export interface Persona {
   id: number
   nombre: string
