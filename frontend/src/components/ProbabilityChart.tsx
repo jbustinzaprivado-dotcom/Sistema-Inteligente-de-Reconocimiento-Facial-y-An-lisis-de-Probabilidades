@@ -35,7 +35,7 @@ export default function ProbabilityChart({ historial }: ProbabilityChartProps) {
             label={{ value: 'Intento', position: 'insideBottom', offset: -2, fontSize: 12 }}
           />
           <YAxis domain={[0, 1]} tick={{ fontSize: 12 }} />
-          <Tooltip formatter={(value: number) => value.toFixed(2)} />
+          <Tooltip formatter={(value) => (typeof value === 'number' ? value.toFixed(2) : value)} />
           <ReferenceLine
             y={umbral}
             stroke="#f97316"
