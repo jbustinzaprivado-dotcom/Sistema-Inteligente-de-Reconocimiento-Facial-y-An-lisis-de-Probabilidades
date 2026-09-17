@@ -5,26 +5,35 @@ import { crearPersona, subirRostro } from '../services/api'
 
 type Estado = 'formulario' | 'enviando' | 'exito'
 
+const CAPTURAS_REQUERIDAS = 3
+
 export default function RegistroFacial() {
   const [nombre, setNombre] = useState('')
   const [email, setEmail] = useState('')
-  const [imagenBase64, setImagenBase64] = useState<string | null>(null)
+  const [capturas, setCapturas] = useState<string[]>([])
   const [estado, setEstado] = useState<Estado>('formulario')
   const [error, setError] = useState<string | null>(null)
 
-  // El boton solo se habilita con nombre, email y una foto ya capturada
-  const puedeEnviar = nombre.trim() !== '' && email.trim() !== '' && imagenBase64 !== null
+  const puedeEnviar =
+    nombre.trim() !== '' && email.trim() !== '' && capturas.length === CAPTURAS_REQUERIDAS
+
+  function handleCapture(imagenBase64: string) {
+    setCapturas((prev) => [...prev, imagenBase64])
+  }
+
+  function handleReiniciarCapturas() {
+    setCapturas([])
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    if (!puedeEnviar || !imagenBase64) return
+    if (!puedeEnviar) return
 
     setEstado('enviando')
     setError(null)
     try {
-      // Dos pasos: primero se crea la persona, luego se asocia su rostro (necesita el id)
       const persona = await crearPersona({ nombre, email })
-      await subirRostro(persona.id, imagenBase64)
+      await subirRostro(persona.id, capturas)
       setEstado('exito')
     } catch {
       setError('No se pudo completar el registro. Intenta nuevamente.')
@@ -35,7 +44,7 @@ export default function RegistroFacial() {
   function handleReset() {
     setNombre('')
     setEmail('')
-    setImagenBase64(null)
+    setCapturas([])
     setEstado('formulario')
     setError(null)
   }
@@ -91,8 +100,35 @@ export default function RegistroFacial() {
         </div>
 
         <div>
-          <span className="mb-1 block text-sm font-medium text-gray-700">Captura facial</span>
-          <CameraCapture onCapture={setImagenBase64} />
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-700">
+              Captura facial ({capturas.length}/{CAPTURAS_REQUERIDAS})
+            </span>
+            {capturas.length > 0 && (
+              <button
+                type="button"
+                onClick={handleReiniciarCapturas}
+                className="text-xs text-blue-600 hover:underline"
+              >
+                Reiniciar capturas
+              </button>
+            )}
+          </div>
+
+          {capturas.length < CAPTURAS_REQUERIDAS ? (
+            <CameraCapture key={capturas.length} onCapture={handleCapture} />
+          ) : (
+            <div className="flex gap-2">
+              {capturas.map((captura, i) => (
+                <img
+                  key={i}
+                  src={captura}
+                  alt={`Captura ${i + 1}`}
+                  className="h-24 w-24 rounded-md border border-gray-300 object-cover"
+                />
+              ))}
+            </div>
+          )}
         </div>
 
         {error && <p className="text-sm text-red-600">{error}</p>}
