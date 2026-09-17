@@ -5,16 +5,20 @@ from sqlalchemy.orm import Session
 
 from app.database.connection import get_db
 from app.models.persona_model import Persona
+from app.models.recognition_model import FaceEmbedding
 from app.schemas.persona_schema import (
     PersonaCreate,
     PersonaOut,
     RostroUploadIn,
     RostroUploadOut,
 )
+from app.services.embedding_service import RostroNoDetectadoError, generar_embedding
 from app.services.face_service import ImagenInvalidaError, decodificar_imagen_base64
 from app.services.storage_service import subir_rostro
 
 router = APIRouter(prefix="/personas", tags=["personas"])
+
+CAPTURAS_REQUERIDAS = 3
 
 
 @router.get("", response_model=list[PersonaOut])
@@ -43,13 +47,37 @@ def registrar_rostro(
     if persona is None:
         raise HTTPException(status_code=404, detail="Persona no encontrada.")
 
-    try:
-        datos_imagen = decodificar_imagen_base64(payload.imagen_base64)
-    except ImagenInvalidaError as exc:
-        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    if len(payload.imagenes_base64) != CAPTURAS_REQUERIDAS:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Se requieren exactamente {CAPTURAS_REQUERIDAS} capturas.",
+        )
 
-    imagen_url = subir_rostro(persona_id, datos_imagen)
+    datos_imagenes: list[bytes] = []
+    embeddings: list[list[float]] = []
+    for i, imagen_base64 in enumerate(payload.imagenes_base64, start=1):
+        try:
+            datos = decodificar_imagen_base64(imagen_base64)
+        except ImagenInvalidaError as exc:
+            raise HTTPException(status_code=422, detail=f"Captura {i}: {exc}") from exc
+        try:
+            embedding = generar_embedding(datos)
+        except RostroNoDetectadoError as exc:
+            raise HTTPException(status_code=422, detail=f"Captura {i}: {exc}") from exc
+        datos_imagenes.append(datos)
+        embeddings.append(embedding)
+
+    imagen_url = subir_rostro(persona_id, datos_imagenes[0])
     persona.foto_url = imagen_url
+
+    for embedding in embeddings:
+        db.add(FaceEmbedding(persona_id=persona_id, embedding=embedding, modelo="buffalo_l"))
+
     db.commit()
 
-    return RostroUploadOut(success=True, imagen_url=imagen_url, persona_id=persona_id)
+    return RostroUploadOut(
+        success=True,
+        imagen_url=imagen_url,
+        persona_id=persona_id,
+        embeddings_generados=len(embeddings),
+    )

@@ -20,10 +20,11 @@ class PersonaOut(BaseModel):
 
 
 class RostroUploadIn(BaseModel):
-    imagen_base64: str
+    imagenes_base64: list[str]
 
 
 class RostroUploadOut(BaseModel):
     success: bool
     imagen_url: str
     persona_id: int
+    embeddings_generados: int
