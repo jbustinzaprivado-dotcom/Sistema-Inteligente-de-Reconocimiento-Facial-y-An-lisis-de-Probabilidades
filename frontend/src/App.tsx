@@ -1,6 +1,7 @@
-import { LayoutDashboard, ScanFace } from 'lucide-react'
+import { LayoutDashboard, ScanFace, UserSearch } from 'lucide-react'
 import { NavLink, Route, Routes } from 'react-router-dom'
 import Dashboard from './pages/Dashboard'
+import Reconocimiento from './pages/Reconocimiento'
 import RegistroFacial from './pages/RegistroFacial'
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -23,15 +24,19 @@ export default function App() {
               <ScanFace size={16} />
               Registro facial
             </NavLink>
+            <NavLink to="/reconocimiento" className={navLinkClass}>
+              <UserSearch size={16} />
+              Reconocimiento
+            </NavLink>
           </nav>
         </div>
       </header>
 
       <main>
-        {/* Solo estas dos rutas existen en la Fase 1; el resto se agrega en fases posteriores */}
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/registro" element={<RegistroFacial />} />
+          <Route path="/reconocimiento" element={<Reconocimiento />} />
         </Routes>
       </main>
     </div>
