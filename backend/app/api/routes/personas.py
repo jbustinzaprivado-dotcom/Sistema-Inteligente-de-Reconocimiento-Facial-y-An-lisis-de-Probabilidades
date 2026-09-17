@@ -12,7 +12,7 @@ from app.schemas.persona_schema import (
     RostroUploadIn,
     RostroUploadOut,
 )
-from app.services.embedding_service import RostroNoDetectadoError, generar_embedding
+from app.services.embedding_service import RostroNoDetectadoError, analizar_captura
 from app.services.face_service import ImagenInvalidaError, decodificar_imagen_base64
 from app.services.storage_service import subir_rostro
 
@@ -54,24 +54,32 @@ def registrar_rostro(
         )
 
     datos_imagenes: list[bytes] = []
-    embeddings: list[list[float]] = []
+    analisis: list[tuple[list[float], float, float]] = []
     for i, imagen_base64 in enumerate(payload.imagenes_base64, start=1):
         try:
             datos = decodificar_imagen_base64(imagen_base64)
         except ImagenInvalidaError as exc:
             raise HTTPException(status_code=422, detail=f"Captura {i}: {exc}") from exc
         try:
-            embedding = generar_embedding(datos)
+            resultado = analizar_captura(datos)
         except RostroNoDetectadoError as exc:
             raise HTTPException(status_code=422, detail=f"Captura {i}: {exc}") from exc
         datos_imagenes.append(datos)
-        embeddings.append(embedding)
+        analisis.append(resultado)
 
     imagen_url = subir_rostro(persona_id, datos_imagenes[0])
     persona.foto_url = imagen_url
 
-    for embedding in embeddings:
-        db.add(FaceEmbedding(persona_id=persona_id, embedding=embedding, modelo="buffalo_l"))
+    for embedding, calidad_imagen, iluminacion in analisis:
+        db.add(
+            FaceEmbedding(
+                persona_id=persona_id,
+                embedding=embedding,
+                modelo="buffalo_l",
+                calidad_imagen=calidad_imagen,
+                iluminacion=iluminacion,
+            )
+        )
 
     db.commit()
 
@@ -79,5 +87,5 @@ def registrar_rostro(
         success=True,
         imagen_url=imagen_url,
         persona_id=persona_id,
-        embeddings_generados=len(embeddings),
+        embeddings_generados=len(analisis),
     )
