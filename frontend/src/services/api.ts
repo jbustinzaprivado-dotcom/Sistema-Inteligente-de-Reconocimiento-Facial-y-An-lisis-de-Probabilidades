@@ -8,7 +8,7 @@ import type {
 } from '../types/facial'
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_URL ?? '/api',
 })
 
 export async function listarPersonas(): Promise<Persona[]> {
@@ -40,4 +40,4 @@ export async function obtenerHistorial(): Promise<HistorialItem[]> {
   return data
 }
 
-export default api 
+export default api

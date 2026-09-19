@@ -12,8 +12,12 @@ class Settings(BaseSettings):
     supabase_service_key: str
     supabase_storage_bucket: str = "rostros"
 
-    # CORS
-    frontend_origin: str = "http://localhost:5173"
+    # CORS: uno o varios origenes separados por coma (ej. dev local + produccion en Vercel)
+    frontend_origins: str = "http://localhost:5173"
+
+    @property
+    def frontend_origins_list(self) -> list[str]:
+        return [origin.strip() for origin in self.frontend_origins.split(",") if origin.strip()]
 
 
 settings = Settings()
